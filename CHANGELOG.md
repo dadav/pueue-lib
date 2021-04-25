@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Moved into a stand-alone repository for better maintainability.
 
+## [0.12.3] - 28-04-2021
+
+## Added
+
+- Expand the tilde to the home directory
+
 ## [0.12.2] - 30-03-2021
 
 ## Changed

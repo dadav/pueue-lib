@@ -15,14 +15,14 @@ use crate::platform::directories::*;
 pub struct Shared {
     /// The directory that is used for all runtime information. \
     /// I.e. task logs, sockets, state dumps, etc.
-    pub pueue_directory: PathBuf,
+    pueue_directory: PathBuf,
     /// If this is set to true, unix sockets will be used.
     /// Otherwise we default to TCP+TLS
     #[cfg(not(target_os = "windows"))]
     pub use_unix_socket: bool,
     /// The path to the unix socket.
     #[cfg(not(target_os = "windows"))]
-    pub unix_socket_path: PathBuf,
+    unix_socket_path: PathBuf,
 
     /// The TCP hostname/ip address.
     pub host: String,
@@ -30,11 +30,11 @@ pub struct Shared {
     pub port: String,
     /// The path to the TLS certificate used by the daemon. \
     /// This is also used by the client to verify the daemon's identity.
-    pub daemon_cert: PathBuf,
+    daemon_cert: PathBuf,
     /// The path to the TLS key used by the daemon.
-    pub daemon_key: PathBuf,
+    daemon_key: PathBuf,
     /// The path to the file containing the shared secret used to authenticate the client.
-    pub shared_secret_path: PathBuf,
+    shared_secret_path: PathBuf,
 }
 
 /// All settings which are used by the client
@@ -78,6 +78,35 @@ pub struct Settings {
     pub client: Client,
     pub daemon: Daemon,
     pub shared: Shared,
+}
+
+impl Shared {
+    pub fn expand(old_path: &PathBuf) -> Result<PathBuf> {
+        info!("Trying to expand: {:?}", old_path);
+        let striped_path = old_path.strip_prefix("~");
+        if !striped_path.is_err() {
+            return Ok(get_home_dir()?.join(striped_path.unwrap()));
+        }
+        return Ok(old_path.to_path_buf());
+    }
+
+    pub fn pueue_directory(&self) -> PathBuf {
+        return Shared::expand(&self.pueue_directory).unwrap();
+    }
+
+    pub fn unix_socket_path(&self) -> PathBuf {
+        return Shared::expand(&self.unix_socket_path).unwrap();
+    }
+
+    pub fn daemon_cert(&self) -> PathBuf {
+        return Shared::expand(&self.daemon_cert).unwrap();
+    }
+    pub fn daemon_key(&self) -> PathBuf {
+        return Shared::expand(&self.daemon_key).unwrap();
+    }
+    pub fn shared_secret_path(&self) -> PathBuf {
+        return Shared::expand(&self.shared_secret_path).unwrap();
+    }
 }
 
 impl Settings {
